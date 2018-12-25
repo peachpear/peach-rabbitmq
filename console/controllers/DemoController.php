@@ -1,14 +1,14 @@
 <?php
 namespace console\controllers;
 
+use console\components\BaseController;
 use Yii;
-use yii\console\Controller;
 
 /**
  * Class DemoController
  * @package console\controllers
  */
-class DemoController extends Controller
+class DemoController extends BaseController
 {
     public function actionIndex()
     {
