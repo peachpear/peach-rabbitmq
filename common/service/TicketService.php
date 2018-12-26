@@ -98,7 +98,7 @@ class TicketService
                 "body"      => $postData,
             ],
         ];
-        Yii::info($log, self::PLATFORM);
+        Yii::trace($log, "application");
 
         $info = $curl->execute();
 
@@ -114,7 +114,7 @@ class TicketService
                 'info' => $info,
             ],
         ];
-        Yii::info($log, self::PLATFORM);
+        Yii::trace($log, "application");
 
         if ($info !== false) {
             $rhInfo = json_decode($info, true);
@@ -149,7 +149,7 @@ class TicketService
                         'time' => date('Y-m-d H:i:s'),
                         'msg' => "msg[code is not success]",
                     ];
-                    Yii::error($log, self::PLATFORM);
+                    Yii::trace($log, "application");
 
                     return false;
                 }
@@ -170,7 +170,7 @@ class TicketService
                 'time' => date('Y-m-d H:i:s'),
                 'msg' => "msg[$info]",
             ];
-            Yii::error($log, self::PLATFORM);
+            Yii::trace($log, "application");
 
             return false;
         }

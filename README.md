@@ -14,7 +14,7 @@ cd /yourProjectParentPath
 
 composer create-project peachpear/peach-rabbitmq yourProjectName
 
-cd /path/yourProjectName/backend/config
+cd /path/yourProjectName/console/config
 
 ln -sf dev.php main.php
 ```
