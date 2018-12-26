@@ -23,6 +23,12 @@ ln -sf dev.php main.php
 ```
 cd /path/yourProjectName/public
 
+// log队列消费者开始运行
+php yii consumer/start log
+
+// mail队列消费者开始运行
+php yii consumer/start mail
+
 // ticket队列消费者开始运行
 php yii consumer/start ticket
 
@@ -31,6 +37,9 @@ php yii consumer/stop ticket
 
 // ticket队列消费者重启运行
 php yii consumer/restart ticket
+
+// ticket延迟队列消费者开始运行
+php yii delay/start ticket
 ```
 
 #### 特别说明
