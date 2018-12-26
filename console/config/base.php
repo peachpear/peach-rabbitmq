@@ -18,6 +18,11 @@ return array(
             'exchange' => 'logstash',
             'routing' => 'logs'
         ],
+        'CMail' => [
+            'queue' => 'queue_mail',
+            'exchange' => 'async',
+            'routing' => 'mail'
+        ],
         'CTicket' => [
             'queue' => 'queue_ticket',
             'exchange' => 'async',

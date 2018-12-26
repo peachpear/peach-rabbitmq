@@ -9,6 +9,15 @@ $commonConfig = array(
             'username' => '',
             'password' => '',
         ],
+        'mailer' => [
+            'transport' => [
+                'username' => 'test-demo@demo.com',
+                'password' => 'abc123+_*',
+            ],
+            'messageConfig' => [
+                'from'=>['test-demo@demo.com'=>'no-reply']
+            ],
+        ],
     ],
     'params' => [
         'ticket' => [
