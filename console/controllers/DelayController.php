@@ -6,7 +6,7 @@ use Yii;
 
 class DelayController extends BaseController
 {
-    /**s
+    /**
      * consumer
      * @var string
      */

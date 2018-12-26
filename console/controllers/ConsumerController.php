@@ -24,7 +24,7 @@ class ConsumerController extends BaseController
      */
     private $pids = [];
 
-    /**s
+    /**
      * consumer
      * @var string
      */
