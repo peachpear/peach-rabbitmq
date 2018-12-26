@@ -13,6 +13,11 @@ return array(
         ],
     ],
     'params' => [
+        'CLog' => [
+            'queue' => 'queue_logs',
+            'exchange' => 'logstash',
+            'routing' => 'logs'
+        ],
         'CTicket' => [
             'queue' => 'queue_ticket',
             'exchange' => 'async',
