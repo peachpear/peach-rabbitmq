@@ -46,7 +46,7 @@ class DelayController extends BaseController
 
         $this->setting = Yii::$app->params['rabbitMQ'];
 
-        $this->bindSetting = Yii::$app->params['C' .$this->consumer];
+        $this->bindSetting = Yii::$app->params['D' .$this->consumer];
     }
 
     /**
