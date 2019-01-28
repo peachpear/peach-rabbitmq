@@ -27,6 +27,23 @@ class LConsoleErrorHandler extends ErrorHandler
         $this->logException($exception);
     }
 
+    public function handleFatalError()
+    {
+        $error = error_get_last();
+        if (LException::isFatalError($error)) {
+            $exception = new \ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
+            $this->exception = $exception;
+//            $this->logException($exception);
+
+            if ($this->discardExistingOutput) {
+                $this->clearOutput();
+            }
+            // need to explicitly flush logs because exit() next will terminate the app immediately
+            Yii::getLogger()->flush(true);
+            $this->handleException($exception);
+        }
+    }
+
     protected function formatException($exception)
     {
         $fileName = $exception->getFile();
@@ -65,22 +82,5 @@ class LConsoleErrorHandler extends ErrorHandler
     public function renderException($exception)
     {
         $this->handleException($exception);
-    }
-
-    public function handleFatalError()
-    {
-        $error = error_get_last();
-        if (LException::isFatalError($error)) {
-            $exception = new \ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
-            $this->exception = $exception;
-//            $this->logException($exception);
-
-            if ($this->discardExistingOutput) {
-                $this->clearOutput();
-            }
-            // need to explicitly flush logs because exit() next will terminate the app immediately
-            Yii::getLogger()->flush(true);
-            $this->handleException($exception);
-        }
     }
 }
