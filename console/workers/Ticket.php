@@ -4,7 +4,7 @@ namespace console\workers;
 use common\service\TicketService;
 use Yii;
 
-class Ticket extends BaseWorker
+class Ticket
 {
     /**
      * 消费者run
