@@ -31,5 +31,4 @@ class Ticket
         Yii::$app->demoDB->close();
         $queue->ack($envelope->getDeliveryTag());
     }
-
 }
