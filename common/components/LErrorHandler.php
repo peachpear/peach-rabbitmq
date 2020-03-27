@@ -8,16 +8,19 @@ use yii\web\ErrorHandler;
 use yii\web\HttpException;
 
 /**
- * ErrorHandler处理类
+ * Web的ErrorHandler处理类
  * Class LErrorHandler
  * @package common\components
  */
 class LErrorHandler extends ErrorHandler
 {
     /**
-     * 异常处理
+     * 处理异常
      * $data['code'] ? $data['code'] : 500
-     * @param $exception
+     * 覆盖父类定义 yii\base\ErrorHandler->handleException()
+     * set_exception_handler([$this, 'handleException']);
+     * @param \Exception $exception
+     * @throws \yii\base\InvalidConfigException
      */
     public function handleException($exception)
     {
@@ -27,6 +30,81 @@ class LErrorHandler extends ErrorHandler
             throw $exception;
         }
 
+        // 日志记录错误异常
+        $this->logException($exception);
+
+        // 渲染输出错误异常
+        $this->renderException($exception);
+    }
+
+    /**
+     * 处理错误
+     * 覆盖父类定义 yii\base\ErrorHandler->handleError()
+     * set_error_handler([$this, 'handleError']);
+     */
+    public function handleError($code, $message, $file, $line)
+    {
+        // 日志记录错误异常
+        $exception =  new \ErrorException($message, $code, 1, $file, $line);
+        $this->logException($exception);
+
+        if (YII_DEBUG) {
+            throw $exception;
+        }
+
+        // 渲染输出错误异常
+        $data = ["msg" => "file:".$file.",line:".$line];
+
+        /** @var $app Application */
+        $app = Yii::$app;
+        /** @var $controller LController */
+        $controller = $app->controller;
+
+        if (!$controller instanceof LController) {
+            $controller = $app->createController('/site');
+            $controller = $controller[0];
+        }
+
+        $controller->ajaxReturn(
+            LError::INTERNAL_ERROR,
+            YII_DEBUG ? $message : array(),
+            YII_DEBUG ? $data : array()
+        );
+    }
+
+    /**
+     * 处理致命错误
+     * 覆盖父类定义 yii\base\ErrorHandler->handleFatalError()
+     * register_shutdown_function([$this, 'handleFatalError']);
+     */
+    public function handleFatalError()
+    {
+        $error = error_get_last();
+        // isFatalError() 在 yii\base\ErrorException 中也有定义
+        if (LException::isFatalError($error)) {
+            $exception = new \ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
+            $this->exception = $exception;
+
+            $this->logException($exception);
+
+            if ($this->discardExistingOutput) {
+                $this->clearOutput();
+            }
+            $this->renderException($exception);
+
+            // need to explicitly flush logs because exit() next will terminate the app immediately
+            Yii::getLogger()->flush(true);
+        }
+    }
+
+    /**
+     * 渲染输出错误异常
+     * 覆盖父类定义 yii\web\ErrorHandler->renderException()
+     * @param \Error|\Exception $exception
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function renderException($exception)
+    {
         $data = $this->formatException($exception);
 
         /** @var $app Application */
@@ -39,8 +117,6 @@ class LErrorHandler extends ErrorHandler
             $controller = $controller[0];
         }
 
-        $this->logException($exception);
-
         $controller->ajaxReturn(
             (isset($data['errorCode']) ? $data['errorCode'] : $data['code']) ? $data['code'] : 500,
             YII_DEBUG ? $data['message'] : array(),
@@ -49,60 +125,7 @@ class LErrorHandler extends ErrorHandler
     }
 
     /**
-     * 错误处理
-     */
-    public function handleError($code, $message, $file, $line)
-    {
-        /** @var $app Application */
-        $app = Yii::$app;
-        /** @var $controller LController */
-        $controller = $app->controller;
-
-        if (!$controller instanceof LController) {
-            $controller = $app->createController('/site');
-            $controller = $controller[0];
-        }
-
-        $exception =  new \ErrorException($message, $code, 1, $file, $line);
-
-        $this->logException($exception);
-
-        if (YII_DEBUG) {
-            throw $exception;
-        }
-
-        $data = ["msg" => "file:".$file.",line:".$line];
-
-        $controller->ajaxReturn(
-            LError::INTERNAL_ERROR,
-            YII_DEBUG ? $message : array(),
-            YII_DEBUG ? $data : array()
-        );
-    }
-
-    /**
-     * 致命错误处理
-     */
-    public function handleFatalError()
-    {
-        $error = error_get_last();
-        if (LException::isFatalError($error)) {
-            $exception = new \ErrorException($error['message'], 500, $error['type'], $error['file'], $error['line']);
-            $this->exception = $exception;
-            $this->logException($exception);
-
-            if ($this->discardExistingOutput) {
-                $this->clearOutput();
-            }
-            // need to explicitly flush logs because exit() next will terminate the app immediately
-            Yii::getLogger()->flush(true);
-
-            $this->handleException($exception);
-        }
-    }
-
-    /**
-     * 格式化异常
+     * 格式化异常信息
      * @param $exception
      * @return array
      */
@@ -140,14 +163,5 @@ class LErrorHandler extends ErrorHandler
             'trace' => $exception->getTraceAsString(),
 //			'traces' => $trace,
         );
-    }
-
-    /**
-     * 渲染异常
-     * @param \Error|\Exception $exception
-     */
-    public function renderException($exception)
-    {
-        $this->handleException($exception);
     }
 }

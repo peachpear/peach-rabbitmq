@@ -21,6 +21,7 @@ class LException extends Exception
 
     /**
      * 检查是否致命错误
+     * 在 yii\base\ErrorException 中也有定义
      * Returns if error is one of fatal type.
      *
      * @param array $error error got from error_get_last()
